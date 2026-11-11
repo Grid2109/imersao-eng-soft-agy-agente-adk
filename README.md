@@ -41,9 +41,33 @@ O agente conta com duas skills modulares principais:
 
 ---
 
-## Ambiente de Execução
+## Jornada do Projeto e Evolução
 
-O projeto foi concebido para rodar no ambiente de nuvem do Google Cloud Shell, mas sua arquitetura é totalmente agnóstica de infraestrutura. Validei e executei o fluxo tanto na nuvem quanto em ambiente de desenvolvimento local, comprovando a portabilidade do agente com o uv e o Google ADK.
+O projeto seguiu a trilha pedagógica da imersão, dividida em fases de maturidade de engenharia de software com IA:
+
+### Fase 1: Construção e Validação Local (Marco deste Repositório)
+- Exploração do uso de agentes de IA para desenvolvimento de software, utilizando o ecossistema Antigravity do Google.
+- Criação de um agente que ajuda na elaboração de um plano de estudos, gerando um arquivo CSV na pasta local do ambiente.
+- Uso do ADK (Agent Development Kit) para construir e testar o agente em um ambiente controlado.
+- Desenvolvimento prático focado em orquestração de agentes, decomposição de tarefas técnicas e integração de ferramentas de IA no ciclo de desenvolvimento.
+- Implementação da skill complementar de revisão ativa para geração de flashcards e quizzes.
+- Este repositório reflete a conclusão completa desta fase, que corresponde ao marco de versionamento da Aula 4 do curso.
+
+### Fase 2: Evolução para Nuvem (Roadmap Planejado)
+Como próximos passos de evolução da solução, o projeto prevê:
+- Expandir o projeto para que o agente possa ser acessado remotamente, transformando-o em uma API gerenciada.
+- Fazer o deploy do agente na plataforma Agent Runtime do Google Cloud, criando uma solução "agent as a service".
+- Implementar a persistência dos dados (arquivo CSV) utilizando o Google Cloud Storage (GCS), substituindo a persistência local.
+- Configurar autenticação e permissões usando Application Default Credentials (ADC) e contas de serviço para garantir segurança e acesso controlado.
+- Demonstrar como o agente pode ser consumido por outros sistemas via API, abrindo possibilidades para integrações diversas.
+
+---
+
+## Ambiente de Execução e Contexto Prático
+
+A proposta central da Imersão Dev foi trabalhar diretamente no Google Cloud Platform (GCP), utilizando escopo de projeto para gerenciar recursos de nuvem e créditos diários de US$ 5 disponibilizados para o laboratório. Iniciei e executei o desenvolvimento no Google Cloud Shell conforme planejado.
+
+Durante o evento, devido ao esgotamento dos créditos diários de nuvem, optei por dar continuidade ao projeto reproduzindo o ambiente de ponta a ponta localmente na minha máquina com o gerenciador uv e o ADK Web. Isso me permitiu realizar todas as auditorias de código, refinamentos de calendário, testes de replanejamento e a implementação da nova skill sem bloqueios, mantendo o compromisso de realizar o deploy em nuvem na etapa seguinte.
 
 ---
 
@@ -180,10 +204,13 @@ Esse erro indica que o Google não aceitou a sua chave de API. Confira, nesta or
 
 ---
 
-## Contexto e Autoria
+## Contexto e Créditos
 
-Este projeto foi desenvolvido por mim a partir do roteiro da Imersão Dev da Alura, disponível no repositório de [John Garrido](https://github.com/johngarrido/alura-imersao-dev-agy).
+Este projeto foi desenvolvido durante a **Imersão Dev: Engenharia de Software na Era da IA**, promovida pela **Alura**, seguindo o roteiro prático e as especificações instruídas por **[John Garrido](https://github.com/johngarrido/alura-imersao-dev-agy)**.
 
-A skill plano-de-estudos e o arquivo AGENTS.md são provenientes do material do curso, e a ideia inicial da skill revisao-ativa também teve origem no roteiro.
-
-A implementação completa do agente (incluindo o agent.py, a classe FerramentasDeArquivo, o instruction_provider dinâmico e a integração da camada FastAPI/A2A), a criação e detalhamento da skill revisao-ativa, a reescrita das regras de replanejamento no workflow.md e a suíte de testes e validação são de minha autoria.
+- Concepção e Especificações Originais: O roteiro passo a passo do laboratório, o documento AGENTS.md, a arquitetura base do agente com o Google ADK, a skill plano-de-estudos e a sugestão do desafio da skill revisao-ativa foram concebidos e estruturados pelo instrutor John Garrido e pela equipe da Alura.
+- Minha Atuação Prática no Projeto: Atuei no papel de engenheira de software realizando pair programming com agentes de IA (ecossistema Antigravity e modelos Gemini). Minha contribuição prática no ciclo de desenvolvimento incluiu:
+  - A execução, teste e configuração do agente tanto no Google Cloud Shell quanto em ambiente local;
+  - O diagnóstico e a resolução de não conformidades técnicas durante a auditoria (ajustes de cálculo de calendário para dias da semana, integridade das 6 colunas do CSV e regras de replanejamento com absorção de margem);
+  - A implementação prática, testes e empacotamento da skill de extensão revisao-ativa;
+  - A estruturação da documentação e a preparação do repositório para versionamento.
