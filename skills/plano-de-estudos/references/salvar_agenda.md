@@ -27,6 +27,7 @@ Use **só** essas duas. Não tente executar comandos (`Execute`) nem editar trec
    - [ ] Há uma linha por sessão, sem linhas em branco, e nenhuma sessão cai em dia que a pessoa não informou.
    - [ ] Datas em `MM/DD/YYYY` e horários em `HH:MM AM/PM`.
    - [ ] Toda `Description` está entre aspas duplas.
+   - [ ] O `Subject` não contém vírgulas desprotegidas (se tiver vírgula, deve estar entre aspas duplas). Toda linha tem exatamente 6 colunas.
    - [ ] O conteúdo **não** tem a cerca ```` ```csv ```` nem texto explicativo, só o CSV.
 3. Chame `WriteFile` com `path` igual a `plano-de-estudos.csv` e `content` igual ao CSV, terminando com uma quebra de linha.
 
