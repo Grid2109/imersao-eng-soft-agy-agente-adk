@@ -87,17 +87,18 @@ def instrucao_agente(context: ReadonlyContext) -> str:
         "   - NUNCA omita a coluna End Date! Para sessões que ocorrem no mesmo dia, o End Date é idêntico ao Start Date.\n"
         "   - Datas no formato MM/DD/YYYY e horários em HH:MM AM/PM\n"
         "   - A Description DEVE sempre estar entre aspas duplas: \"Revisão: ... | Técnica: ... | Entregável: ...\"\n"
-        "   - Se o plano tiver mais de 14 dias de estudo, inclua no CSV apenas os primeiros 14 dias (Passo 5 do workflow)\n"
+        "   - TODAS as sessões listadas no cronograma da resposta (inclusive os dias de 🛟 Margem) DEVEM ser incluídas no CSV com as mesmas datas e horários, garantindo consistência total entre o texto e a agenda.\n"
         "   - Sempre termine o conteúdo do CSV com uma quebra de linha final (\\n)\n"
         "5. Replanejamento:\n"
-        "   - Se o estudante informar sessões perdidas/atrasos, NUNCA empilhe em um único dia e NUNCA estenda o prazo final "
-        "se houver dias de margem disponíveis. Utilize os dias de margem (🛟 Margem) para absorver o atraso e manter a data de conclusão.\n"
-        "   - Sobrescreva o arquivo `plano-de-estudos.csv` com a versão corrigida."
+        "   - Chame `ReadFile` com path='plano-de-estudos.csv' para conferir a agenda atual antes de replanejar.\n"
+        "   - EFEITO CASCATA PEDAGÓGICO: se sessões forem perdidas, desloque o conteúdo atrasado imediatamente para a próxima sessão de estudo disponível, empurrando os conteúdos subsequentes em sequência lógica contínua (ex: variáveis e condicionais DEVEM ser concluídos antes de DOM, eventos e projetos). As sessões de margem no final do período (🛟 Margem) absorvem o deslocamento sem estender a data final.\n"
+        "   - NUNCA empilhe conteúdos atrasados em um único dia.\n"
+        "   - GRAVAÇÃO OBRIGATÓRIA: no replanejamento, você DEVE OBRIGATORIAMENTE invocar a ferramenta `WriteFile` com path='plano-de-estudos.csv' contendo o novo CSV completo. NUNCA diga que salvou o arquivo sem ter chamado `WriteFile` de fato."
     )
 
 
-# Obtém o modelo a partir da variável de ambiente MODEL (padrão: gemini-2.5-flash)
-MODEL_NAME = os.getenv("MODEL", "gemini-2.5-flash")
+# Obtém o modelo a partir da variável de ambiente MODEL (padrão: gemini-3.8-flash)
+MODEL_NAME = os.getenv("MODEL", "gemini-3.8-flash")
 
 root_agent = Agent(
     name="agente_estudos",
