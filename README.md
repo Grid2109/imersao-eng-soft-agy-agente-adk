@@ -135,11 +135,16 @@ Para testar o agente nos cenários previstos no projeto, utilize os seguintes ex
    ```
    O agente deve apresentar a visão geral, cronograma com checkpoints e salvar o arquivo `agente-estudos/planos/plano-de-estudos.csv`.
 
-3. Teste de Replanejamento:
-   ```text
-   Perdi as sessões de quarta e sexta da primeira semana. Ajusta o plano?
-   ```
-   O agente deve reorganizar o cronograma absorvendo o atraso pelos dias de margem e sobrescrever o arquivo CSV.
+3. Teste de Replanejamento e Ajuste Guiado (Prompt Steering):
+   - Solicitação inicial de ajuste:
+     ```text
+     Perdi as sessões de quarta e sexta da primeira semana. Ajusta o plano?
+     ```
+   - Refinamento e correção de calendário:
+     ```text
+     Atenção: eu avisei que a quarta (18/11) e a sexta (20/11) foram perdidas! Portanto, não pode haver sessão na sexta 20/11. O cronograma deve recomeçar na segunda seguinte (23/11), empurrando os conteúdos para frente e absorvendo nas margens do final. Apresente o cronograma corrigido onde a semana 1 tem apenas a segunda-feira 16/11.
+     ```
+     O agente lê o CSV com `ReadFile`, aplica a cascata pedagógica correta e sobrescreve o arquivo no disco com `WriteFile`.
 
 4. Teste de Revisão Ativa:
    ```text
@@ -160,15 +165,16 @@ Após a geração do plano pelo agente:
 
 ## Agente em funcionamento
 
-Registros visuais da interação com o agente no ADK Web e da importação das agendas no Google Agenda.
+Registros visuais da interação com o agente no ADK Web e da importação das agendas no Google Agenda, organizados em sequência cronológica.
 
-| Etapa | Evidência | Caminho da imagem |
-| :--- | :--- | :--- |
-| Teste 1 (Gating) | Pedido incompleto: agente pergunta apenas o que falta no chat | `docs/images/cenario-1-gating.png` |
-| Teste 2 (Plano Completo) | Resposta no chat com visão geral, cronograma e chamada do WriteFile | `docs/images/cenario-2-plano.png` |
-| Teste 3 (Replanejamento) | Resposta no chat com efeito cascata e sobrescrita do CSV | `docs/images/cenario-3-replanejamento.png` |
-| Google Agenda (Novembro) | Visão mensal de novembro com início dos estudos e comparação das agendas | `docs/images/agenda-novembro.png` |
-| Google Agenda (Dezembro) | Visão mensal de dezembro com conclusão do projeto até 18/12 | `docs/images/agenda-dezembro.png` |
+| Sequência | Etapa / Evidência | Caminho da imagem |
+| :---: | :--- | :--- |
+| 01 | Teste 1 (Gating): Pedido incompleto, agente pergunta apenas o que falta no chat | `docs/images/01-cenario-1-gating.png` |
+| 02 | Teste 2 (Plano Completo): Visão geral, cronograma das 5 semanas e gravação com WriteFile | `docs/images/02-cenario-2-plano.png` |
+| 03 | Teste 3 (Replanejamento - Tentativa Inicial): Primeira resposta após relatar sessões perdidas | `docs/images/03-cenario-3-replanejamento.png` |
+| 04 | Teste 3 (Replanejamento - Correção): Ajuste via prompt steering, validação de dias e regravação do CSV | `docs/images/04-cenario-3-replanejamento-corrigido.png` |
+| 05 | Google Agenda (Novembro): Visão mensal de novembro com início dos estudos e agendas sobrepostas | `docs/images/05-agenda-novembro.png` |
+| 06 | Google Agenda (Dezembro): Visão mensal de dezembro com conclusão do projeto e absorção das margens | `docs/images/06-agenda-dezembro.png` |
 
 > Para incluir as capturas no repositório, basta salvar os arquivos de imagem com os nomes indicados na pasta `docs/images/`.
 
