@@ -53,10 +53,10 @@ O projeto seguiu a trilha pedagógica da imersão, dividida em fases de maturida
 - Implementação da skill complementar de revisão ativa para geração de flashcards e quizzes.
 - Este repositório reflete a conclusão completa desta fase, que corresponde ao marco de versionamento da Aula 4 do curso.
 
-### Fase 2: Evolução para Nuvem (Roadmap Planejado)
-Como próximos passos de evolução da solução, o projeto prevê:
+### Fase 2: Evolução para Nuvem (Roadmap Futuro)
+Neste momento, optei por não realizar o deploy em nuvem, decidindo explorar essa etapa em uma oportunidade futura com outras abordagens de infraestrutura. Como visão de evolução da solução, o projeto prevê:
 - Expandir o projeto para que o agente possa ser acessado remotamente, transformando-o em uma API gerenciada.
-- Fazer o deploy do agente na plataforma Agent Runtime do Google Cloud, criando uma solução "agent as a service".
+- Fazer o deploy do agente na nuvem (como no Agent Runtime ou Cloud Run), criando uma solução "agent as a service".
 - Implementar a persistência dos dados (arquivo CSV) utilizando o Google Cloud Storage (GCS), substituindo a persistência local.
 - Configurar autenticação e permissões usando Application Default Credentials (ADC) e contas de serviço para garantir segurança e acesso controlado.
 - Demonstrar como o agente pode ser consumido por outros sistemas via API, abrindo possibilidades para integrações diversas.
@@ -67,7 +67,7 @@ Como próximos passos de evolução da solução, o projeto prevê:
 
 A proposta central da Imersão Dev foi trabalhar diretamente no Google Cloud Platform (GCP), utilizando escopo de projeto para gerenciar recursos de nuvem e créditos diários de US$ 5 disponibilizados para o laboratório. Iniciei e executei o desenvolvimento no Google Cloud Shell conforme planejado.
 
-Durante o evento, devido ao esgotamento dos créditos diários de nuvem, optei por dar continuidade ao projeto reproduzindo o ambiente de ponta a ponta localmente na minha máquina com o gerenciador uv e o ADK Web. Isso me permitiu realizar todas as auditorias de código, refinamentos de calendário, testes de replanejamento e a implementação da nova skill sem bloqueios, mantendo o compromisso de realizar o deploy em nuvem na etapa seguinte.
+Durante o evento, devido ao esgotamento dos créditos diários de nuvem, optei por dar continuidade ao projeto reproduzindo o ambiente de ponta a ponta localmente na minha máquina com o gerenciador uv e o ADK Web. Isso me permitiu realizar todas as auditorias de código, refinamentos de calendário, testes de replanejamento e a implementação da nova skill sem bloqueios. Por opção técnica, decidi focar este repositório na entrega robusta da engenharia e execução local do agente, deixando o deploy em nuvem para ser realizado de outra forma em uma oportunidade futura.
 
 ---
 
@@ -99,7 +99,7 @@ Durante o evento, devido ao esgotamento dos créditos diários de nuvem, optei p
    GEMINI_API_KEY=sua-chave-aqui
    MODEL=gemini-3.8-flash
    ```
-   Caso o modelo 3.8 apresente instabilidade temporária (erro 503), altere para `MODEL=gemini-2.5-flash`, conforme detalhado na seção de Solução de problemas.
+   Caso o modelo 3.8 apresente instabilidade temporária (erro 503) ou atinja os limites diários do plano gratuito (erro 429), você pode alterá-lo no `.env` para modelos Flash compatíveis como `gemini-3.6-flash` ou `gemini-2.5-flash`, conforme detalhado na seção de Solução de problemas.
 
 3. Sincronize as dependências e o ambiente virtual:
    ```bash
@@ -160,38 +160,62 @@ Após a geração do plano pelo agente:
 
 ## Agente em funcionamento
 
-Capturas do ADK Web com o agente respondendo nos cenários de validação.
+Registros visuais da interação com o agente no ADK Web e da importação das agendas no Google Agenda.
 
-| Cenário | Imagem |
-| :--- | :--- |
-| Pedido incompleto: o agente pergunta só o que falta | ![Gating](docs/images/cenario-1-gating.png) |
-| Plano completo e gravação do CSV | ![Plano completo](docs/images/cenario-2-plano.png) |
-| Replanejamento após sessões perdidas | ![Replanejamento](docs/images/cenario-3-replanejamento.png) |
+| Etapa | Evidência | Caminho da imagem |
+| :--- | :--- | :--- |
+| Teste 1 (Gating) | Pedido incompleto: agente pergunta apenas o que falta no chat | `docs/images/cenario-1-gating.png` |
+| Teste 2 (Plano Completo) | Resposta no chat com visão geral, cronograma e chamada do WriteFile | `docs/images/cenario-2-plano.png` |
+| Teste 3 (Replanejamento) | Resposta no chat com efeito cascata e sobrescrita do CSV | `docs/images/cenario-3-replanejamento.png` |
+| Google Agenda (Novembro) | Visão mensal de novembro com início dos estudos e comparação das agendas | `docs/images/agenda-novembro.png` |
+| Google Agenda (Dezembro) | Visão mensal de dezembro com conclusão do projeto até 18/12 | `docs/images/agenda-dezembro.png` |
+
+> Para incluir as capturas no repositório, basta salvar os arquivos de imagem com os nomes indicados na pasta `docs/images/`.
 
 ---
 
 ## Solução de problemas
 
-### Erro 503 (modelo indisponível)
+### Escolha de Modelos e Propósito de Engenharia
 
-Durante os testes, o `gemini-3.8-flash` devolveu o erro **503** várias vezes. Esse erro significa que o serviço do Google está temporariamente sobrecarregado: o problema não está no seu código nem na sua chave, e costuma passar sozinho.
+O modelo principal e titular deste projeto é o **`gemini-3.8-flash`**, configurado como fallback padrão no código (`agent.py`). Conforme a documentação oficial do Google, o Gemini 3.8 Flash foi concebido especificamente para engenharia de software de longo prazo, agentes autônomos complexos e fluxos corporativos, combinando alto raciocínio lógico e precisão em chamadas de ferramentas (tool calling) com a eficiência da linha Flash.
 
-O modelo principal do projeto continua sendo o **`gemini-3.8-flash`**, que é o foco da imersão. O agente já tenta a chamada 3 vezes antes de desistir. Se o erro persistir, use o modelo reserva:
+Durante o desenvolvimento com o plano gratuito (Free Tier) do Google AI Studio, instabilidades e limites de tráfego podem ocorrer. Quando for necessário substituir o modelo temporariamente, **não se deve escolher qualquer modelo aleatório da lista geral do Google**:
 
+1. **Modelos da linha Pro (como `gemini-2.5-pro` ou `gemini-3.1-pro-preview`):** Possuem cota zero no plano gratuito (`limit: 0`), resultando em erros imediatos de descontinuação (404) ou recusa de cota (429).
+2. **Por que modelos da linha Lite (como `gemini-3.1-flash-lite`) não são recomendados:** Modelos da linha Lite são projetados exclusivamente para tarefas de altíssima velocidade e baixa complexidade (como classificação de texto, roteamento simples e resumos superficiais). Eles não possuem a capacidade de raciocínio necessária para tarefas de engenharia de software e agentes autônomos, que exigem cálculo preciso de calendário, obediência estrita a esquemas estruturados (como o formato rígido de 6 colunas do CSV) e aplicação do efeito cascata pedagógico. Em testes práticos, modelos Lite apresentaram inconsistências de formatação e quebra de contagem de colunas na gravação de arquivos.
+3. **Modelos Flash recomendados para substituição temporária:**
+   - **`gemini-3.6-flash`:** Modelo da mesma geração avançada do 3.8, com alto rigor lógico, precisão matemática na geração de esquemas estruturados e excelente orquestração de ferramentas (tool calling).
+   - **`gemini-3.5-flash`:** Alternativa intermediária robusta, com ótimo equilíbrio de raciocínio para agentes.
+   - **`gemini-2.5-flash`:** Versão anterior consolidada e estável, com suporte nativo e comprovado a chamadas de função.
+
+O código do agente (`agente-estudos/app/agent.py`) mantém o `gemini-3.8-flash` como padrão de fallback caso a variável de ambiente não seja informada. Qualquer troca de modelo é feita exclusivamente no arquivo `agente-estudos/.env` através da variável `MODEL`.
+
+### Erro 503 (Serviço temporariamente indisponível)
+
+O erro **503 UNAVAILABLE** indica sobrecarga transitória nos servidores do Google AI Studio para o modelo requisitado. O problema não decorre do código nem da chave de API e costuma normalizar espontaneamente após alguns minutos.
+
+Se o modelo titular `gemini-3.8-flash` estiver passando por um pico de tráfego:
 1. Abra o arquivo `agente-estudos/.env`.
-2. Troque a linha do modelo:
-
+2. Altere a variável para um modelo Flash alternativo:
    ```env
-   MODEL=gemini-2.5-flash
+   MODEL=gemini-3.6-flash
    ```
+3. Reinicie o servidor no terminal (`CTRL+C` e execute novamente `uv run adk web --allow_origins="*"`) para que o novo modelo seja carregado.
+4. Quando o pico de tráfego passar, retorne para `MODEL=gemini-3.8-flash`.
 
-3. Pare o ADK Web (`CTRL+C`) e rode de novo: `uv run adk web --allow_origins="*"`.
+### Erro 429 (Limite de cota excedido)
 
-Quando o 3.8 voltar a responder, volte para `MODEL=gemini-3.8-flash`. Se a linha `MODEL` for apagada, o código usa o `gemini-3.8-flash` por padrão. Nos meus testes, essa troca resolveu o erro. Se o modelo reserva sair do ar no futuro, consulte a lista atual em [ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models).
+O erro **429 RESOURCE_EXHAUSTED** ocorre quando a conta atinge um dos limites do plano gratuito do Google AI Studio:
 
-> A troca é manual. O agente não muda de modelo sozinho quando ocorre um 503.
+1. **Limite por minuto (RPM / TPM):** Envio de muitas requisições ou tokens em uma janela curta de 60 segundos. Basta aguardar de 30 a 60 segundos antes de reenviar o prompt.
+2. **Limite diário (RPD):** Esgotamento do teto de requisições por dia no Free Tier (geralmente 20 requisições diárias para determinados modelos).
+   
+Como as cotas gratuitas do Google AI Studio são contabilizadas de forma independente por modelo, ao atingir o limite diário de um modelo você não precisa parar os testes:
+1. Edite o `agente-estudos/.env` e aponte para outro modelo Flash recomendado com cota livre (por exemplo, alternar entre `gemini-3.6-flash`, `gemini-3.5-flash` ou `gemini-2.5-flash`).
+2. Reinicie o ADK Web (`CTRL+C` e `uv run adk web --allow_origins="*"`) e continue a execução.
 
-### Erro 401 (chave não aceita)
+### Erro 401 (Chave não aceita)
 
 Esse erro indica que o Google não aceitou a sua chave de API. Confira, nesta ordem:
 
